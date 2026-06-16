@@ -270,6 +270,11 @@
       }
       renderStep();
     } else if (step === 5 && !marginShown) {
+      // first time on margin screen — show it
+      marginShown = true;
+      renderStep();
+    } else if (step === 5 && marginShown) {
+      // user clicked "Показать результат"
       data.margin = parseFloat(inputField.value) || 30;
       step++;
       renderStep();
