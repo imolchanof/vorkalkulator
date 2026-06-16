@@ -2,491 +2,413 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROMI Стройка — калькулятор окупаемости рекламы</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Диагностика рекламы в стройке</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-  
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  
   body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: #0c0e12;
-    color: #e8edf5;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: linear-gradient(135deg,#0f172a,#111d35);
+    color: #e4e8f0;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 40px 20px 80px;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 480px; width: 100%; }
+
+  /* progress */
+  .progress-bar {
+    height: 4px;
+    background: #1a2640;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg,#3b82f6,#6366f1);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    width: 0%;
   }
 
-  .container {
-    max-width: 720px;
-    width: 100%;
-  }
-
-  /* header */
-  .header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-  .badge {
-    display: inline-block;
-    background: #1a2e2a;
-    color: #4ade80;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 100px;
-    margin-bottom: 16px;
-    letter-spacing: 0.3px;
-  }
-  .header h1 {
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 12px;
-    background: linear-gradient(135deg, #f0f4ff 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .header p {
-    color: #64748b;
-    font-size: 16px;
-    line-height: 1.6;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  /* cards */
+  /* card */
   .card {
-    background: #14181f;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 20px;
+    background: #131e30;
+    border: 1px solid #1e3050;
+    border-radius: 24px;
+    padding: 32px 24px;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
   }
 
-  .card-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #64748b;
+  .step-indicator {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b5f7b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
   }
-
-  /* channel row */
-  .channel {
-    display: grid;
-    grid-template-columns: minmax(90px, 1fr) 1fr 1fr 1fr;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #1e293b;
+  .question {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f0f4ff;
+    margin-bottom: 8px;
+    line-height: 1.3;
   }
-  .channel:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
-  .channel .name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #94a3b8;
-  }
-  .channel input {
-    width: 100%;
-    background: #0c0e12;
-    border: 1px solid #1e293b;
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: #e8edf5;
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .channel input:focus { border-color: #3b82f6; }
-  .channel input::placeholder { color: #475569; font-size: 12px; }
-
-  .channel .income-row {
-    display: contents;
-  }
-
-  /* helper text under inputs */
-  .input-hint {
-    display: grid;
-    grid-template-columns: minmax(90px, 1fr) 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-size: 11px;
-    color: #475569;
-    font-weight: 500;
-  }
-  .input-hint span:first-child { }
-  .input-hint span { text-align: center; }
-
-  /* totals */
-  .totals-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
+  .hint {
+    font-size: 13px;
+    color: #64748b;
     margin-bottom: 24px;
   }
-  .total-item {
-    background: #0c0e12;
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-  }
-  .total-item .value {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 4px;
-  }
-  .total-item .label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
-  }
-  .total-item .value.green { color: #4ade80; }
-  .total-item .value.red { color: #f87171; }
-  .total-item .value.yellow { color: #fbbf24; }
 
-  /* channel results */
+  .input-group {
+    display: flex;
+    align-items: center;
+    background: #0a0f1a;
+    border: 1px solid #1e3050;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+  }
+  .input-group:focus-within { border-color: #3b82f6; }
+  .input-group input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #e4e8f0;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: inherit;
+    outline: none;
+    text-align: center;
+    min-width: 0;
+  }
+  .input-group input::placeholder { color: #1f2640; font-weight: 500; }
+  .input-group .suffix {
+    font-size: 16px;
+    color: #64748b;
+    font-weight: 600;
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.15s;
+    margin-top: auto;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.25);
+  }
+  .btn-back {
+    background: transparent;
+    color: #64748b;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  /* result screen */
   .result-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid #1a1f2b;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a2640;
   }
   .result-item:last-child { border-bottom: none; }
-  .result-item .left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .result-item .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .result-item .dot.green { background: #4ade80; }
-  .result-item .dot.red { background: #f87171; }
-  .result-item .dot.yellow { background: #fbbf24; }
-  .result-item .channel-name { font-size: 15px; font-weight: 600; }
-  .result-item .channel-meta { font-size: 13px; color: #64748b; margin-top: 2px; }
-  .result-item .right { text-align: right; }
-  .result-item .romi { font-size: 20px; font-weight: 800; }
-  .result-item .romi.green { color: #4ade80; }
-  .result-item .romi.red { color: #f87171; }
-  .result-item .romi.yellow { color: #fbbf24; }
-  .result-item .romi-label { font-size: 12px; color: #64748b; }
+  .ri-label { font-size: 13px; color: #94a3b8; }
+  .ri-value { font-size: 18px; font-weight: 800; color: #f0f4ff; }
+  .ri-value.green { color: #4ade80; }
+  .ri-value.red { color: #f87171; }
+  .ri-value.yellow { color: #fbbf24; }
 
-  /* summary */
-  .summary-box {
-    background: linear-gradient(135deg, #1a2e2a 0%, #14181f 100%);
-    border: 1px solid #1e293b;
+  .verdict {
+    text-align: center;
+    padding: 16px;
     border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    margin-top: 16px;
+    margin: 16px 0;
   }
-  .summary-box .big { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
-  .summary-box .big.green { color: #4ade80; }
-  .summary-box .big.red { color: #f87171; }
-  .summary-box .sub { font-size: 14px; color: #94a3b8; margin-bottom: 8px; }
-  .summary-box .desc { font-size: 14px; color: #64748b; line-height: 1.6; }
+  .verdict.problem {
+    background: linear-gradient(135deg,#1a0f0f,#131e30);
+    border: 1px solid #5c1a1a;
+  }
+  .verdict.problem .title { font-size: 16px; font-weight: 700; color: #f87171; }
+  .verdict.problem .desc { font-size: 13px; color: #c8d0dc; margin-top: 4px; }
+  .verdict.ok {
+    background: linear-gradient(135deg,#0f1a0f,#131e30);
+    border: 1px solid #165c1a;
+  }
+  .verdict.ok .title { font-size: 16px; font-weight: 700; color: #4ade80; }
+  .verdict.ok .desc { font-size: 13px; color: #c8d0dc; margin-top: 4px; }
 
-  /* footer / branding */
-  .footer {
+  .cta-btn {
+    display: block;
+    text-decoration: none;
     text-align: center;
-    margin-top: 40px;
-    color: #334155;
-    font-size: 13px;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: #fff;
+    margin-top: 12px;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.25);
   }
-  .footer span { color: #475569; }
+  .cta-btn .sub { font-size: 12px; font-weight: 500; opacity: 0.7; margin-top: 2px; }
 
-  /* responsive */
-  @media (max-width: 600px) {
-    body { padding: 20px 12px 60px; }
-    .header h1 { font-size: 24px; }
-    .card { padding: 20px; }
-    .channel { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .channel .name { grid-column: 1 / -1; font-size: 13px; margin-bottom: 2px; }
-    .input-hint { grid-template-columns: 1fr 1fr; }
-    .input-hint span:first-child { display: none; }
-    .totals-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .total-item .value { font-size: 20px; }
-  }
+  .footer { text-align: center; margin-top: 16px; color: #1a2640; font-size: 12px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-
-  <div class="header">
-    <div class="badge">🧮 Калькулятор ROMI</div>
-    <h1>Окупаемость рекламы<br>в стройке</h1>
-    <p>Введите расходы и доходы по каждому каналу — получите реальную картину: что работает, а что сжигает бюджет</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
   </div>
 
-  <!-- input -->
-  <div class="card" id="input-card">
-    <div class="card-label">📊 Ваши каналы</div>
-
-    <div class="input-hint">
-      <span>Канал</span>
-      <span>Бюджет, ₽</span>
-      <span>Заявок</span>
-      <span>Продаж на сумму, ₽</span>
+  <div class="card" id="card">
+    <div class="step-indicator" id="stepLabel">Шаг 1 из 5</div>
+    <div class="question" id="questionText"></div>
+    <div class="hint" id="hintText"></div>
+    <div class="input-group" id="inputGroup">
+      <input type="number" id="inputField" placeholder="0" min="0" step="1000">
+      <span class="suffix" id="suffixText"></span>
     </div>
-
-    <!-- Яндекс Директ -->
-    <div class="channel">
-      <span class="name">Яндекс Директ</span>
-      <input type="number" id="budget-yd" placeholder="0" min="0" step="1000">
-      <input type="number" id="leads-yd" placeholder="0" min="0">
-      <input type="number" id="revenue-yd" placeholder="0" min="0" step="10000">
-    </div>
-
-    <!-- Авито -->
-    <div class="channel">
-      <span class="name">Авито</span>
-      <input type="number" id="budget-avito" placeholder="0" min="0" step="1000">
-      <input type="number" id="leads-avito" placeholder="0" min="0">
-      <input type="number" id="revenue-avito" placeholder="0" min="0" step="10000">
-    </div>
-
-    <!-- VK / таргет -->
-    <div class="channel">
-      <span class="name">VK таргет</span>
-      <input type="number" id="budget-vk" placeholder="0" min="0" step="1000">
-      <input type="number" id="leads-vk" placeholder="0" min="0">
-      <input type="number" id="revenue-vk" placeholder="0" min="0" step="10000">
-    </div>
-
-    <!-- Другое -->
-    <div class="channel">
-      <span class="name">Другие каналы</span>
-      <input type="number" id="budget-other" placeholder="0" min="0" step="1000">
-      <input type="number" id="leads-other" placeholder="0" min="0">
-      <input type="number" id="revenue-other" placeholder="0" min="0" step="10000">
-    </div>
+    <button class="btn btn-primary" id="nextBtn">Далее</button>
+    <button class="btn btn-back" id="backBtn" style="display:none;">← Назад</button>
   </div>
 
-  <!-- results (hidden until data) -->
-  <div id="results" style="display:none;">
-
-    <!-- total metrics -->
-    <div class="card">
-      <div class="card-label">📈 Общие показатели</div>
-      <div class="totals-grid">
-        <div class="total-item">
-          <div class="value" id="total-spent">0 ₽</div>
-          <div class="label">Всего потрачено</div>
-        </div>
-        <div class="total-item">
-          <div class="value green" id="total-revenue">0 ₽</div>
-          <div class="label">Всего продаж</div>
-        </div>
-        <div class="total-item">
-          <div class="value" id="total-ltv">0 ₽</div>
-          <div class="label">Прибыль / убыток</div>
-        </div>
-      </div>
-      <div class="totals-grid">
-        <div class="total-item">
-          <div class="value" id="total-romi">0%</div>
-          <div class="label">ROMI</div>
-        </div>
-        <div class="total-item">
-          <div class="value" id="total-cpl">0 ₽</div>
-          <div class="label">Стоимость заявки</div>
-        </div>
-        <div class="total-item">
-          <div class="value" id="total-cr">0%</div>
-          <div class="label">CR (заявка→сделка)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- by channel -->
-    <div class="card">
-      <div class="card-label">🔍 По каналам</div>
-      <div id="channel-results"></div>
-    </div>
-
-    <!-- verdict -->
-    <div class="summary-box" id="verdict-box">
-      <div class="big" id="verdict-emoji">👍</div>
-      <div class="sub" id="verdict-label">Всё в порядке</div>
-      <div class="desc" id="verdict-desc">У вас сбалансированная реклама. Но всегда есть куда расти.</div>
-    </div>
-
-    <div class="footer">
-      <span>ROMI Стройка — инструмент для оценки рекламы</span>
-    </div>
-  </div>
-
+  <div class="footer">Диагностика рекламы в стройке</div>
 </div>
 
 <script>
-  const CHANNELS = [
-    { key: 'yd',   name: 'Яндекс Директ', budget: 'budget-yd',   leads: 'leads-yd',   revenue: 'revenue-yd' },
-    { key: 'avito',name: 'Авито',          budget: 'budget-avito',leads: 'leads-avito',revenue: 'revenue-avito' },
-    { key: 'vk',   name: 'VK таргет',      budget: 'budget-vk',   leads: 'leads-vk',   revenue: 'revenue-vk' },
-    { key: 'other',name: 'Другие',          budget: 'budget-other',leads: 'leads-other',revenue: 'revenue-other' },
+  const TG_LINK = 'https://t.me/iliamolchanov';
+
+  const questions = [
+    { q: 'Сколько тратите на рекламу в месяц?', h: 'Бюджет на все каналы (Яндекс, Авито, VK)', s: '₽', k: 'budget' },
+    { q: 'Сколько заявок получаете?', h: 'Заявок в месяц со всех каналов', s: 'шт', k: 'leads' },
+    { q: 'Сколько встреч проводите?', h: 'Количество встреч с клиентами', s: 'шт', k: 'meets' },
+    { q: 'Сколько продаж закрываете?', h: 'Продаж в месяц', s: 'шт', k: 'sales' },
+    { q: 'Какой доход и маржа?', h: 'Общий доход с продаж и ваш процент чистыми', s: '₽', k: 'revenue' },
   ];
 
-  function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+  const data = { budget: 0, leads: 0, meets: 0, sales: 0, revenue: 0, margin: 0 };
+  let step = 0;
+  let marginShown = false;
+
+  const progressFill = document.getElementById('progressFill');
+  const stepLabel = document.getElementById('stepLabel');
+  const questionText = document.getElementById('questionText');
+  const hintText = document.getElementById('hintText');
+  const inputField = document.getElementById('inputField');
+  const suffixText = document.getElementById('suffixText');
+  const nextBtn = document.getElementById('nextBtn');
+  const backBtn = document.getElementById('backBtn');
+  const card = document.getElementById('card');
+  const inputGroup = document.getElementById('inputGroup');
+
+  function renderStep() {
+    if (step < 5) {
+      progressFill.style.width = ((step + 1) / 6) * 100 + '%';
+      stepLabel.textContent = 'Шаг ' + (step + 1) + ' из 5';
+      const q = questions[step];
+      questionText.textContent = q.q;
+      hintText.textContent = q.h;
+      suffixText.textContent = q.s;
+      inputField.value = data[q.k] || '';
+      inputField.placeholder = '0';
+      inputField.step = q.k === 'margin' ? '5' : q.k === 'revenue' ? '10000' : '1';
+      inputField.focus();
+      nextBtn.textContent = step === 4 ? 'Диагностировать!' : 'Далее';
+      backBtn.style.display = step > 0 ? 'block' : 'none';
+      inputGroup.style.display = 'flex';
+      nextBtn.style.display = 'block';
+    } else if (step === 5 && !marginShown) {
+      // margin step
+      stepLabel.textContent = 'Шаг 5 из 5';
+      questionText.textContent = 'Какой у вас процент маржи?';
+      hintText.textContent = 'Сколько чистыми остаётся с каждой продажи после расходов';
+      suffixText.textContent = '%';
+      inputField.value = data.margin || 30;
+      inputField.step = '5';
+      inputField.focus();
+      nextBtn.textContent = 'Показать результат';
+      backBtn.style.display = 'block';
+      inputGroup.style.display = 'flex';
+      nextBtn.style.display = 'block';
+      marginShown = true;
+      progressFill.style.width = '100%';
+    } else {
+      showResults();
+    }
+  }
+
+  function nextStep() {
+    if (step < 5) {
+      const q = questions[step];
+      const val = parseFloat(inputField.value) || 0;
+      data[q.k] = val;
+      step++;
+      if (step === 5) {
+        marginShown = false;
+      }
+      renderStep();
+    } else if (step === 5 && !marginShown) {
+      data.margin = parseFloat(inputField.value) || 30;
+      step++;
+      renderStep();
+    }
+  }
+
+  function prevStep() {
+    if (step > 0) {
+      const q = questions[step - 1];
+      const val = parseFloat(inputField.value) || 0;
+      if (step === 5 && !marginShown) {
+        data['revenue'] = val;
+      } else if (step < 5) {
+        data[q.k] = val;
+      } else if (step === 6) {
+        data.margin = val;
+      }
+      step--;
+      marginShown = false;
+      renderStep();
+    }
+  }
 
   function fmt(n) {
     if (isNaN(n) || n === Infinity || n === -Infinity) return '—';
+    if (n < 0) return '−' + Math.round(Math.abs(n)).toLocaleString('ru-RU') + ' ₽';
     return Math.round(n).toLocaleString('ru-RU') + ' ₽';
   }
-  function pct(n) {
-    if (isNaN(n) || n === Infinity || n === -Infinity) return '—';
-    return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
-  }
 
-  function calc() {
-    let totalBudget = 0, totalRevenue = 0, totalLeads = 0, totalSales = 0;
-    const channelData = [];
+  function showResults() {
+    const { budget, leads, meets, sales, revenue } = data;
+    const marginPct = (data.margin || 30) / 100;
 
-    for (const ch of CHANNELS) {
-      const budget = v(ch.budget);
-      const leads = v(ch.leads);
-      const revenue = v(ch.revenue);
+    const cpl = leads > 0 ? budget / leads : 0;
+    const cpm = meets > 0 ? budget / meets : 0;
+    const avg = sales > 0 ? revenue / sales : 0;
+    const cr1 = leads > 0 ? (meets / leads) * 100 : 0;
+    const cr2 = meets > 0 ? (sales / meets) * 100 : 0;
+    const overall = leads > 0 ? (sales / leads) * 100 : 0;
+    const marginRevenue = revenue * marginPct;
+    const profit = marginRevenue - budget;
 
-      totalBudget += budget;
-      totalRevenue += revenue;
-      totalLeads += leads;
+    // find worst problem
+    const NORM_CR1 = 40, NORM_CR2 = 50;
+    let problemText = '', problemType = 'ok';
+    let gap1 = cr1 > 0 ? cr1 / NORM_CR1 : 1;
+    let gap2 = cr2 > 0 ? cr2 / NORM_CR2 : 1;
 
-      // count sales approx: revenue / avg check (we don't have avg check directly, 
-      // but we can estimate from totals, or just use a separate field)
-      // Actually let's track sales count = number of transactions.
-      // We'll estimate: if revenue > 0 and leads > 0, approximate sales = leads * conversion rate.
-      // Better: ask for avg check or sales count. But for simplicity, let's calculate
-      // from revenue = sales_count * avg_check. We don't know avg_check per channel.
-      // Let's just use revenue as the output metric — that's what matters.
-
-      channelData.push({
-        name: ch.name,
-        key: ch.key,
-        budget,
-        leads,
-        revenue,
-        cpl: leads > 0 ? budget / leads : 0,
-        romi: budget > 0 ? ((revenue - budget) / budget) * 100 : 0,
-      });
-    }
-
-    const resultsDiv = document.getElementById('results');
-    const hasData = totalBudget > 0 || totalLeads > 0 || totalRevenue > 0;
-
-    if (!hasData) {
-      resultsDiv.style.display = 'none';
-      return;
-    }
-    resultsDiv.style.display = 'block';
-
-    // totals
-    document.getElementById('total-spent').textContent = fmt(totalBudget);
-    document.getElementById('total-revenue').textContent = fmt(totalRevenue);
-    const profit = totalRevenue - totalBudget;
-    const profitEl = document.getElementById('total-ltv');
-    profitEl.textContent = fmt(Math.abs(profit));
-    profitEl.className = 'value ' + (profit >= 0 ? 'green' : 'red');
-    if (profit >= 0) profitEl.textContent = '+' + fmt(profit);
-    else profitEl.textContent = '−' + fmt(Math.abs(profit));
-
-    const totalRomi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
-    const romiEl = document.getElementById('total-romi');
-    romiEl.textContent = pct(totalRomi);
-    romiEl.className = 'value ' + (totalRomi >= 30 ? 'green' : totalRomi >= 0 ? 'yellow' : 'red');
-
-    const totalCpl = totalLeads > 0 ? totalBudget / totalLeads : 0;
-    document.getElementById('total-cpl').textContent = fmt(totalCpl);
-
-    // cr: we don't have sales count per channel. 
-    // Estimate total sales from sum of channel revenues? Not accurate per channel.
-    // Let's show "≈ —" for now
-    document.getElementById('total-cr').textContent = '—';
-
-    // channel results
-    const chResults = document.getElementById('channel-results');
-    chResults.innerHTML = '';
-
-    let hasActive = false;
-    for (const ch of channelData) {
-      if (ch.budget === 0 && ch.leads === 0 && ch.revenue === 0) continue;
-      hasActive = true;
-
-      const dotClass = ch.romi >= 30 ? 'green' : ch.romi >= 0 ? 'yellow' : 'red';
-      const row = document.createElement('div');
-      row.className = 'result-item';
-      row.innerHTML = `
-        <div class="left">
-          <span class="dot ${dotClass}"></span>
-          <div>
-            <div class="channel-name">${ch.name}</div>
-            <div class="channel-meta">${ch.leads > 0 ? ch.leads + ' заявок' : 'нет данных'}</div>
-          </div>
-        </div>
-        <div class="right">
-          <div class="romi ${dotClass}">${ch.budget > 0 ? pct(ch.romi) : '—'}</div>
-          <div class="romi-label">${ch.cpl > 0 ? 'CPL ' + fmt(ch.cpl) : ''}</div>
-        </div>
-      `;
-      chResults.appendChild(row);
-    }
-
-    if (!hasActive) {
-      chResults.innerHTML = '<div style="color:#64748b;text-align:center;padding:12px;">Заполните данные хотя бы по одному каналу</div>';
-    }
-
-    // verdict
-    const vEmoji = document.getElementById('verdict-emoji');
-    const vLabel = document.getElementById('verdict-label');
-    const vDesc = document.getElementById('verdict-desc');
-
-    if (totalRomi > 50) {
-      vEmoji.textContent = '🚀';
-      vLabel.textContent = 'Реклама работает отлично';
-      vDesc.textContent = 'Вы в плюсе. Проверьте, можно ли масштабировать прибыльные каналы — увеличьте бюджет на то, что реально приносит деньги.';
-    } else if (totalRomi > 0) {
-      vEmoji.textContent = '👍';
-      vLabel.textContent = 'Выходите в ноль / слабый плюс';
-      vDesc.textContent = 'Реклама не убыточна, но потенциал выше. Посмотрите, какие каналы тянут вниз — возможно, бюджет уходит на то, что не работает.';
-    } else if (totalRomi === 0 && totalBudget > 0) {
-      vEmoji.textContent = '🤔';
-      vLabel.textContent = 'В ноль без прибыли';
-      vDesc.textContent = 'Вы возвращаете потраченное, но не зарабатываете. Нужно пересмотреть воронку: либо цена лида высокая, либо конверсия в продажу низкая.';
-    } else if (totalBudget > 0) {
-      vEmoji.textContent = '🔥';
-      vLabel.textContent = 'Бюджет сгорает';
-      vDesc.textContent = 'Вы тратите больше, чем зарабатываете. Первым делом — остановите явно убыточные каналы. Потом разберитесь, что идёт не так: сайт, объявления или менеджеры.';
+    if (gap1 < gap2 && gap1 < 0.8) {
+      problemType = 'problem';
+      problemText = `⚠️ Заявки не доходят до встреч (${cr1.toFixed(0)}% при норме ${NORM_CR1}%). Из ${leads} заявок встречу получают только ${meets}. Нужно: быстрый ответ, скрипты, обучение менеджеров.`;
+    } else if (gap2 < 0.8) {
+      problemType = 'problem';
+      problemText = `⚠️ Встречи не закрываются в сделки (${cr2.toFixed(0)}% при норме ${NORM_CR2}%). Из ${meets} встреч продажей заканчиваются только ${sales}. Нужно: проработка презентации, квалификация клиентов.`;
+    } else if (cpl > 3000 && leads > 0) {
+      problemType = 'problem';
+      problemText = `⚠️ Слишком дорогие заявки (${fmt(cpl)}). Норма для стройки — до 2000 ₽. Широкий таргетинг или не те площадки.`;
+    } else if (profit < 0) {
+      problemType = 'problem';
+      problemText = `🔥 Бюджет не окупается. Тратите ${fmt(budget)}, чистыми получаете ${fmt(marginRevenue)}. Нужно смотреть всю воронку.`;
     } else {
-      vEmoji.textContent = '📋';
-      vLabel.textContent = 'Нет данных';
-      vDesc.textContent = 'Введите расходы и доходы по каналам — получите полную картину.';
+      problemText = '✅ Всё в порядке. Воронка работает, реклама окупается. Можно масштабировать.';
     }
 
-    // color the verdict big number
-    const bigSpan = document.querySelector('.summary-box .big');
-    if (bigSpan) {
-      bigSpan.className = 'big ' + (totalRomi > 0 ? 'green' : totalRomi < 0 ? 'red' : '');
-    }
+    card.innerHTML = `
+      <div class="step-indicator">Диагностика завершена 🎯</div>
+      
+      <div class="verdict ${problemType}">
+        <div class="title">${problemType === 'ok' ? '✅ Всё в порядке' : '🔥 Найдена проблема'}</div>
+        <div class="desc">${problemText}</div>
+      </div>
+
+      <div style="margin:12px 0;">
+        <div class="result-item"><span class="ri-label">Бюджет</span><span class="ri-value">${fmt(budget)}</span></div>
+        <div class="result-item"><span class="ri-label">Заявки</span><span class="ri-value">${leads} шт</span></div>
+        <div class="result-item"><span class="ri-label">Встречи</span><span class="ri-value">${meets} шт</span></div>
+        <div class="result-item"><span class="ri-label">Продажи</span><span class="ri-value">${sales} шт</span></div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#4b5f7b;text-transform:uppercase;letter-spacing:0.4px;margin-top:8px;">Показатели</div>
+      <div style="margin:8px 0;">
+        <div class="result-item">
+          <span class="ri-label">Цена заявки (CPL)</span>
+          <span class="ri-value ${cpl > 0 && cpl < 2000 ? 'green' : cpl > 0 && cpl < 5000 ? 'yellow' : cpl > 0 ? 'red' : ''}">${cpl > 0 ? fmt(cpl) : '—'}</span>
+        </div>
+        <div class="result-item">
+          <span class="ri-label">Заявка → Встреча</span>
+          <span class="ri-value ${cr1 >= 40 ? 'green' : cr1 >= 20 ? 'yellow' : 'red'}">${cr1 > 0 ? cr1.toFixed(0) + '%' : '—'}</span>
+        </div>
+        <div class="result-item">
+          <span class="ri-label">Встреча → Сделка</span>
+          <span class="ri-value ${cr2 >= 50 ? 'green' : cr2 >= 25 ? 'yellow' : 'red'}">${cr2 > 0 ? cr2.toFixed(0) + '%' : '—'}</span>
+        </div>
+        <div class="result-item">
+          <span class="ri-label">Чистыми с учётом маржи</span>
+          <span class="ri-value ${profit >= 0 ? 'green' : 'red'}">${profit >= 0 ? '+' + fmt(profit) : '−' + fmt(Math.abs(profit))}</span>
+        </div>
+      </div>
+
+      <a class="cta-btn" href="${TG_LINK}?text=Хочу сессию с разбором моей рекламы" target="_blank">
+        📩 Записаться на сессию к Илье
+        <div class="sub">30 минут — разберём вашу ситуацию бесплатно</div>
+      </a>
+
+      <button class="btn btn-back" onclick="resetQuiz()" style="display:block;margin-top:12px;">← Пройти заново</button>
+    `;
+    progressFill.style.width = '100%';
   }
 
-  // auto-calc on any input
-  document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('.channel input');
-    inputs.forEach(inp => inp.addEventListener('input', calc));
-  });
-</script>
+  function resetQuiz() {
+    data.budget = 0; data.leads = 0; data.meets = 0; data.sales = 0; data.revenue = 0; data.margin = 0;
+    step = 0; marginShown = false;
+    document.querySelector('.container').innerHTML = `
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="card" id="card">
+        <div class="step-indicator" id="stepLabel">Шаг 1 из 5</div>
+        <div class="question" id="questionText"></div>
+        <div class="hint" id="hintText"></div>
+        <div class="input-group" id="inputGroup">
+          <input type="number" id="inputField" placeholder="0" min="0" step="1000">
+          <span class="suffix" id="suffixText"></span>
+        </div>
+        <button class="btn btn-primary" id="nextBtn">Далее</button>
+        <button class="btn btn-back" id="backBtn" style="display:none;">← Назад</button>
+      </div>
+      <div class="footer">Диагностика рекламы в стройке</div>
+    `;
+    location.reload();
+  }
 
+  nextBtn.addEventListener('click', nextStep);
+  backBtn.addEventListener('click', prevStep);
+  inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') nextStep(); });
+  inputField.addEventListener('input', () => {
+    inputGroup.style.borderColor = '#1e3050';
+    setTimeout(() => inputGroup.style.borderColor = '#1e3050', 300);
+  });
+
+  renderStep();
+</script>
 </body>
 </html>
