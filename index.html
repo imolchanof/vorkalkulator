@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROMI Стройка — калькулятор окупаемости рекламы</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0c0e12;
+    color: #e8edf5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  .container {
+    max-width: 720px;
+    width: 100%;
+  }
+
+  /* header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .badge {
+    display: inline-block;
+    background: #1a2e2a;
+    color: #4ade80;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header p {
+    color: #64748b;
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* cards */
+  .card {
+    background: #14181f;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  /* channel row */
+  .channel {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .channel:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .channel .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+  .channel input {
+    width: 100%;
+    background: #0c0e12;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e8edf5;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .channel input:focus { border-color: #3b82f6; }
+  .channel input::placeholder { color: #475569; font-size: 12px; }
+
+  .channel .income-row {
+    display: contents;
+  }
+
+  /* helper text under inputs */
+  .input-hint {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    color: #475569;
+    font-weight: 500;
+  }
+  .input-hint span:first-child { }
+  .input-hint span { text-align: center; }
+
+  /* totals */
+  .totals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .total-item {
+    background: #0c0e12;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .total-item .value {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .total-item .label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .total-item .value.green { color: #4ade80; }
+  .total-item .value.red { color: #f87171; }
+  .total-item .value.yellow { color: #fbbf24; }
+
+  /* channel results */
+  .result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #1a1f2b;
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-item .left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .result-item .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .result-item .dot.green { background: #4ade80; }
+  .result-item .dot.red { background: #f87171; }
+  .result-item .dot.yellow { background: #fbbf24; }
+  .result-item .channel-name { font-size: 15px; font-weight: 600; }
+  .result-item .channel-meta { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .result-item .right { text-align: right; }
+  .result-item .romi { font-size: 20px; font-weight: 800; }
+  .result-item .romi.green { color: #4ade80; }
+  .result-item .romi.red { color: #f87171; }
+  .result-item .romi.yellow { color: #fbbf24; }
+  .result-item .romi-label { font-size: 12px; color: #64748b; }
+
+  /* summary */
+  .summary-box {
+    background: linear-gradient(135deg, #1a2e2a 0%, #14181f 100%);
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .summary-box .big { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+  .summary-box .big.green { color: #4ade80; }
+  .summary-box .big.red { color: #f87171; }
+  .summary-box .sub { font-size: 14px; color: #94a3b8; margin-bottom: 8px; }
+  .summary-box .desc { font-size: 14px; color: #64748b; line-height: 1.6; }
+
+  /* footer / branding */
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #334155;
+    font-size: 13px;
+  }
+  .footer span { color: #475569; }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    body { padding: 20px 12px 60px; }
+    .header h1 { font-size: 24px; }
+    .card { padding: 20px; }
+    .channel { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .channel .name { grid-column: 1 / -1; font-size: 13px; margin-bottom: 2px; }
+    .input-hint { grid-template-columns: 1fr 1fr; }
+    .input-hint span:first-child { display: none; }
+    .totals-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .total-item .value { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">🧮 Калькулятор ROMI</div>
+    <h1>Окупаемость рекламы<br>в стройке</h1>
+    <p>Введите расходы и доходы по каждому каналу — получите реальную картину: что работает, а что сжигает бюджет</p>
+  </div>
+
+  <!-- input -->
+  <div class="card" id="input-card">
+    <div class="card-label">📊 Ваши каналы</div>
+
+    <div class="input-hint">
+      <span>Канал</span>
+      <span>Бюджет, ₽</span>
+      <span>Заявок</span>
+      <span>Продаж на сумму, ₽</span>
+    </div>
+
+    <!-- Яндекс Директ -->
+    <div class="channel">
+      <span class="name">Яндекс Директ</span>
+      <input type="number" id="budget-yd" placeholder="0" min="0" step="1000">
+      <input type="number" id="leads-yd" placeholder="0" min="0">
+      <input type="number" id="revenue-yd" placeholder="0" min="0" step="10000">
+    </div>
+
+    <!-- Авито -->
+    <div class="channel">
+      <span class="name">Авито</span>
+      <input type="number" id="budget-avito" placeholder="0" min="0" step="1000">
+      <input type="number" id="leads-avito" placeholder="0" min="0">
+      <input type="number" id="revenue-avito" placeholder="0" min="0" step="10000">
+    </div>
+
+    <!-- VK / таргет -->
+    <div class="channel">
+      <span class="name">VK таргет</span>
+      <input type="number" id="budget-vk" placeholder="0" min="0" step="1000">
+      <input type="number" id="leads-vk" placeholder="0" min="0">
+      <input type="number" id="revenue-vk" placeholder="0" min="0" step="10000">
+    </div>
+
+    <!-- Другое -->
+    <div class="channel">
+      <span class="name">Другие каналы</span>
+      <input type="number" id="budget-other" placeholder="0" min="0" step="1000">
+      <input type="number" id="leads-other" placeholder="0" min="0">
+      <input type="number" id="revenue-other" placeholder="0" min="0" step="10000">
+    </div>
+  </div>
+
+  <!-- results (hidden until data) -->
+  <div id="results" style="display:none;">
+
+    <!-- total metrics -->
+    <div class="card">
+      <div class="card-label">📈 Общие показатели</div>
+      <div class="totals-grid">
+        <div class="total-item">
+          <div class="value" id="total-spent">0 ₽</div>
+          <div class="label">Всего потрачено</div>
+        </div>
+        <div class="total-item">
+          <div class="value green" id="total-revenue">0 ₽</div>
+          <div class="label">Всего продаж</div>
+        </div>
+        <div class="total-item">
+          <div class="value" id="total-ltv">0 ₽</div>
+          <div class="label">Прибыль / убыток</div>
+        </div>
+      </div>
+      <div class="totals-grid">
+        <div class="total-item">
+          <div class="value" id="total-romi">0%</div>
+          <div class="label">ROMI</div>
+        </div>
+        <div class="total-item">
+          <div class="value" id="total-cpl">0 ₽</div>
+          <div class="label">Стоимость заявки</div>
+        </div>
+        <div class="total-item">
+          <div class="value" id="total-cr">0%</div>
+          <div class="label">CR (заявка→сделка)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- by channel -->
+    <div class="card">
+      <div class="card-label">🔍 По каналам</div>
+      <div id="channel-results"></div>
+    </div>
+
+    <!-- verdict -->
+    <div class="summary-box" id="verdict-box">
+      <div class="big" id="verdict-emoji">👍</div>
+      <div class="sub" id="verdict-label">Всё в порядке</div>
+      <div class="desc" id="verdict-desc">У вас сбалансированная реклама. Но всегда есть куда расти.</div>
+    </div>
+
+    <div class="footer">
+      <span>ROMI Стройка — инструмент для оценки рекламы</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const CHANNELS = [
+    { key: 'yd',   name: 'Яндекс Директ', budget: 'budget-yd',   leads: 'leads-yd',   revenue: 'revenue-yd' },
+    { key: 'avito',name: 'Авито',          budget: 'budget-avito',leads: 'leads-avito',revenue: 'revenue-avito' },
+    { key: 'vk',   name: 'VK таргет',      budget: 'budget-vk',   leads: 'leads-vk',   revenue: 'revenue-vk' },
+    { key: 'other',name: 'Другие',          budget: 'budget-other',leads: 'leads-other',revenue: 'revenue-other' },
+  ];
+
+  function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  function fmt(n) {
+    if (isNaN(n) || n === Infinity || n === -Infinity) return '—';
+    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+  }
+  function pct(n) {
+    if (isNaN(n) || n === Infinity || n === -Infinity) return '—';
+    return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+  }
+
+  function calc() {
+    let totalBudget = 0, totalRevenue = 0, totalLeads = 0, totalSales = 0;
+    const channelData = [];
+
+    for (const ch of CHANNELS) {
+      const budget = v(ch.budget);
+      const leads = v(ch.leads);
+      const revenue = v(ch.revenue);
+
+      totalBudget += budget;
+      totalRevenue += revenue;
+      totalLeads += leads;
+
+      // count sales approx: revenue / avg check (we don't have avg check directly, 
+      // but we can estimate from totals, or just use a separate field)
+      // Actually let's track sales count = number of transactions.
+      // We'll estimate: if revenue > 0 and leads > 0, approximate sales = leads * conversion rate.
+      // Better: ask for avg check or sales count. But for simplicity, let's calculate
+      // from revenue = sales_count * avg_check. We don't know avg_check per channel.
+      // Let's just use revenue as the output metric — that's what matters.
+
+      channelData.push({
+        name: ch.name,
+        key: ch.key,
+        budget,
+        leads,
+        revenue,
+        cpl: leads > 0 ? budget / leads : 0,
+        romi: budget > 0 ? ((revenue - budget) / budget) * 100 : 0,
+      });
+    }
+
+    const resultsDiv = document.getElementById('results');
+    const hasData = totalBudget > 0 || totalLeads > 0 || totalRevenue > 0;
+
+    if (!hasData) {
+      resultsDiv.style.display = 'none';
+      return;
+    }
+    resultsDiv.style.display = 'block';
+
+    // totals
+    document.getElementById('total-spent').textContent = fmt(totalBudget);
+    document.getElementById('total-revenue').textContent = fmt(totalRevenue);
+    const profit = totalRevenue - totalBudget;
+    const profitEl = document.getElementById('total-ltv');
+    profitEl.textContent = fmt(Math.abs(profit));
+    profitEl.className = 'value ' + (profit >= 0 ? 'green' : 'red');
+    if (profit >= 0) profitEl.textContent = '+' + fmt(profit);
+    else profitEl.textContent = '−' + fmt(Math.abs(profit));
+
+    const totalRomi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
+    const romiEl = document.getElementById('total-romi');
+    romiEl.textContent = pct(totalRomi);
+    romiEl.className = 'value ' + (totalRomi >= 30 ? 'green' : totalRomi >= 0 ? 'yellow' : 'red');
+
+    const totalCpl = totalLeads > 0 ? totalBudget / totalLeads : 0;
+    document.getElementById('total-cpl').textContent = fmt(totalCpl);
+
+    // cr: we don't have sales count per channel. 
+    // Estimate total sales from sum of channel revenues? Not accurate per channel.
+    // Let's show "≈ —" for now
+    document.getElementById('total-cr').textContent = '—';
+
+    // channel results
+    const chResults = document.getElementById('channel-results');
+    chResults.innerHTML = '';
+
+    let hasActive = false;
+    for (const ch of channelData) {
+      if (ch.budget === 0 && ch.leads === 0 && ch.revenue === 0) continue;
+      hasActive = true;
+
+      const dotClass = ch.romi >= 30 ? 'green' : ch.romi >= 0 ? 'yellow' : 'red';
+      const row = document.createElement('div');
+      row.className = 'result-item';
+      row.innerHTML = `
+        <div class="left">
+          <span class="dot ${dotClass}"></span>
+          <div>
+            <div class="channel-name">${ch.name}</div>
+            <div class="channel-meta">${ch.leads > 0 ? ch.leads + ' заявок' : 'нет данных'}</div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="romi ${dotClass}">${ch.budget > 0 ? pct(ch.romi) : '—'}</div>
+          <div class="romi-label">${ch.cpl > 0 ? 'CPL ' + fmt(ch.cpl) : ''}</div>
+        </div>
+      `;
+      chResults.appendChild(row);
+    }
+
+    if (!hasActive) {
+      chResults.innerHTML = '<div style="color:#64748b;text-align:center;padding:12px;">Заполните данные хотя бы по одному каналу</div>';
+    }
+
+    // verdict
+    const vEmoji = document.getElementById('verdict-emoji');
+    const vLabel = document.getElementById('verdict-label');
+    const vDesc = document.getElementById('verdict-desc');
+
+    if (totalRomi > 50) {
+      vEmoji.textContent = '🚀';
+      vLabel.textContent = 'Реклама работает отлично';
+      vDesc.textContent = 'Вы в плюсе. Проверьте, можно ли масштабировать прибыльные каналы — увеличьте бюджет на то, что реально приносит деньги.';
+    } else if (totalRomi > 0) {
+      vEmoji.textContent = '👍';
+      vLabel.textContent = 'Выходите в ноль / слабый плюс';
+      vDesc.textContent = 'Реклама не убыточна, но потенциал выше. Посмотрите, какие каналы тянут вниз — возможно, бюджет уходит на то, что не работает.';
+    } else if (totalRomi === 0 && totalBudget > 0) {
+      vEmoji.textContent = '🤔';
+      vLabel.textContent = 'В ноль без прибыли';
+      vDesc.textContent = 'Вы возвращаете потраченное, но не зарабатываете. Нужно пересмотреть воронку: либо цена лида высокая, либо конверсия в продажу низкая.';
+    } else if (totalBudget > 0) {
+      vEmoji.textContent = '🔥';
+      vLabel.textContent = 'Бюджет сгорает';
+      vDesc.textContent = 'Вы тратите больше, чем зарабатываете. Первым делом — остановите явно убыточные каналы. Потом разберитесь, что идёт не так: сайт, объявления или менеджеры.';
+    } else {
+      vEmoji.textContent = '📋';
+      vLabel.textContent = 'Нет данных';
+      vDesc.textContent = 'Введите расходы и доходы по каналам — получите полную картину.';
+    }
+
+    // color the verdict big number
+    const bigSpan = document.querySelector('.summary-box .big');
+    if (bigSpan) {
+      bigSpan.className = 'big ' + (totalRomi > 0 ? 'green' : totalRomi < 0 ? 'red' : '');
+    }
+  }
+
+  // auto-calc on any input
+  document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('.channel input');
+    inputs.forEach(inp => inp.addEventListener('input', calc));
+  });
+</script>
+
+</body>
+</html>
