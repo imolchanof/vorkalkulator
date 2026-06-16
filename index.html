@@ -116,6 +116,23 @@
     color: #fff;
     box-shadow: 0 4px 20px rgba(59,130,246,0.25);
   }
+  .btn-scenario {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #2a4a6a;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    background: #0f1a2f;
+    color: #60a5fa;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-scenario:hover {
+    border-color: #3b82f6;
+    background: #1a2a4a;
+  }
   .btn-back {
     background: transparent;
     color: #64748b;
@@ -374,6 +391,16 @@
         </div>
       </div>
 
+      <div style="margin-top:16px;">
+        <button class="btn btn-scenario" onclick="showScenario(1)" data-norm="конверсию звонка→встречу до нормы">
+          📈 Поднять заявка→встреча до ${NORM_CR1}%
+        </button>
+        <button class="btn btn-scenario" onclick="showScenario(2)" style="margin-top:8px;" data-norm="конверсию встречу→сделку до нормы">
+          📈 Поднять встреча→сделка до ${NORM_CR2}%
+        </button>
+      </div>
+      <div id="scenarioResult" style="margin-top:12px;display:none;"></div>
+
       <a class="cta-btn" href="${TG_LINK}?text=Хочу сессию с разбором моей рекламы" target="_blank">
         📩 Записаться на сессию к Илье
         <div class="sub">30 минут — разберём вашу ситуацию бесплатно</div>
@@ -382,6 +409,61 @@
       <button class="btn btn-back" onclick="resetQuiz()" style="display:block;margin-top:12px;">← Пройти заново</button>
     `;
     progressFill.style.width = '100%';
+  }
+
+  function showScenario(n) {
+    const { budget, leads, meets, sales, revenue } = data;
+    const marginPct = (data.margin || 30) / 100;
+    const NORM_CR1 = 40, NORM_CR2 = 50;
+    const avgCheck = sales > 0 ? revenue / sales : 0;
+    const curCr1 = leads > 0 ? meets / leads : 0;
+    const curCr2 = meets > 0 ? sales / meets : 0;
+
+    let newMeets, newSales, label, scenarioCr2;
+
+    if (n === 1) {
+      // Поднять CR1 до нормы
+      if (curCr1 * 100 >= NORM_CR1) {
+        document.getElementById('scenarioResult').innerHTML = '<div style="background:#0f1a2f;border:1px solid #1a5c1a;border-radius:16px;padding:20px;text-align:center;"><span style="color:#4ade80;font-weight:700;">✅ Конверсия заявка→встреча уже в норме</span></div>';
+        document.getElementById('scenarioResult').style.display = 'block';
+        return;
+      }
+      newMeets = Math.round(leads * NORM_CR1 / 100);
+      scenarioCr2 = curCr2 || 0.15; // если 0 — берём 15% как базу
+      newSales = Math.round(newMeets * scenarioCr2);
+      label = 'заявка→встреча до ' + NORM_CR1 + '%';
+    } else {
+      // Поднять CR2 до нормы
+      if (curCr2 * 100 >= NORM_CR2) {
+        document.getElementById('scenarioResult').innerHTML = '<div style="background:#0f1a2f;border:1px solid #1a5c1a;border-radius:16px;padding:20px;text-align:center;"><span style="color:#4ade80;font-weight:700;">✅ Конверсия встреча→сделка уже в норме</span></div>';
+        document.getElementById('scenarioResult').style.display = 'block';
+        return;
+      }
+      newMeets = meets;
+      newSales = Math.round(meets * NORM_CR2 / 100);
+      label = 'встреча→сделка до ' + NORM_CR2 + '%';
+    }
+
+    const newRevenue = Math.round(newSales * avgCheck);
+    const newProfit = Math.round(newRevenue * marginPct - budget);
+    const extraRevenue = newRevenue - revenue;
+    const extraProfit = newProfit - Math.round(revenue * marginPct - budget);
+
+    const el = document.getElementById('scenarioResult');
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div style="background:#0f1a2f;border:1px solid #2a4a6a;border-radius:16px;padding:20px;">
+        <div style="font-size:13px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.4px;">
+          📊 Если поднять ${label}
+        </div>
+        <div style="margin-top:12px;">
+          <div class="result-item"><span class="ri-label">Встреч</span><span class="ri-value">${newMeets} шт</span></div>
+          <div class="result-item"><span class="ri-label">Продаж</span><span class="ri-value">${newSales} шт</span></div>
+          <div class="result-item"><span class="ri-label">Доход</span><span class="ri-value green">+${fmt(extraRevenue)}</span></div>
+          <div class="result-item"><span class="ri-label">Чистыми</span><span class="ri-value green">+${fmt(extraProfit)}</span></div>
+        </div>
+      </div>
+    `;
   }
 
   function resetQuiz() {
